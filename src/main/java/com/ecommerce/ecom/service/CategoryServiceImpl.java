@@ -3,7 +3,10 @@ package com.ecommerce.ecom.service;
 import com.ecommerce.ecom.exceptions.APIException;
 import com.ecommerce.ecom.exceptions.ResourceNotFoundException;
 import com.ecommerce.ecom.model.Category;
+import com.ecommerce.ecom.payload.CategoryDTO;
+import com.ecommerce.ecom.payload.CategoryResponse;
 import com.ecommerce.ecom.repositories.CategoryRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -22,14 +26,20 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
 //    Spring creates a proxy class (a dynamically generated implementation) at runtime so that we can directly use object of a normal interface.
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Override
-    public List<Category> getAllCategories() {
+    public CategoryResponse getAllCategories() {
 
         List<Category> savedList=categoryRepository.findAll();
         if(savedList.isEmpty()){
             throw new APIException("No categories found");
         }
-        return savedList;
+        List<CategoryDTO> categoryDTOS=savedList.stream().map(category->modelMapper.map(category, CategoryDTO.class)).toList();
+        CategoryResponse categoryResponse=new CategoryResponse();
+        categoryResponse.setContent(categoryDTOS);
+        return categoryResponse;
     }
     @Override
     public void createCategory(Category category) {
