@@ -43,6 +43,14 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryDTO> categoryDTOS=savedList.stream().map(category->modelMapper.map(category, CategoryDTO.class)).toList();
         CategoryResponse categoryResponse=new CategoryResponse();
         categoryResponse.setContent(categoryDTOS);
+
+        categoryResponse.setPageNumber(categoryPage.getNumber());
+        categoryResponse.setPageSize(categoryPage.getSize());
+        categoryResponse.setTotalElements(categoryPage.getTotalElements());
+        categoryResponse.setTotalPages(categoryPage.getTotalPages());
+        categoryResponse.setLastPage(categoryPage.isLast());
+
+
         return categoryResponse;
     }
     @Override
