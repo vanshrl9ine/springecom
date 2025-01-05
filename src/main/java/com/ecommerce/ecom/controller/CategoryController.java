@@ -26,9 +26,16 @@ public class CategoryController {
 //        this.categoryService = categoryService;
 //    }do not need constructor injection with autowired annotation
 
+
+
+//    @GetMapping("/echo")
+//    public ResponseEntity<String> echoMessage(@RequestParam(name="message",defaultValue = "Hello World") String message){
+//        return new ResponseEntity<String>("Message received: "+message,HttpStatus.OK);
+//    } jus for learning
+
     @GetMapping("/public/categories")
-    public ResponseEntity<CategoryResponse> getAllCategories(){
-        CategoryResponse categoryResponse= categoryService.getAllCategories();
+    public ResponseEntity<CategoryResponse> getAllCategories(@RequestParam(name="pageNumber") Integer pageNumber, @RequestParam(name="pageSize") Integer pageSize){
+        CategoryResponse categoryResponse= categoryService.getAllCategories(pageNumber,pageSize);
         return  new ResponseEntity<>(categoryResponse,HttpStatus.OK);
     }
     @PostMapping("/public/categories")
