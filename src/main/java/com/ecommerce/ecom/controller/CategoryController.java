@@ -43,7 +43,7 @@ public class CategoryController {
 
     ){
         CategoryResponse categoryResponse= categoryService.getAllCategories(pageNumber,pageSize,sortBy,sortOrder);
-        return  new ResponseEntity<>(categoryResponse,HttpStatus.OK);
+        return  new ResponseEntity<CategoryResponse>(categoryResponse,HttpStatus.OK);
     }
     @PostMapping("/public/categories")
     public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO){
