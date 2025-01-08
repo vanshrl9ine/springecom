@@ -76,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateProduct(ProductDTO productDTO, Long productId) {
+    public ProductDTO updateProduct(ProductDTO productDTO, Long productId,Long categoryId) {
         //get existing product from db
         //update
         //save
@@ -93,13 +93,10 @@ public class ProductServiceImpl implements ProductService {
         double specialPrice = product.getPrice() * ((100 - product.getDiscount()) / 100);
         productFromDb.setSpecialPrice(specialPrice);
 
-        // Only update the category if a new one is explicitly provided
-        if (product.getCategory() != null && product.getCategory().getCategoryId() != null) {
-            Long categoryId = product.getCategory().getCategoryId();
-            Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
-            productFromDb.setCategory(category);
-        }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+        productFromDb.setCategory(category);
+
         Product savedProduct=productRepository.save(productFromDb);
         return modelMapper.map(savedProduct, ProductDTO.class);
 

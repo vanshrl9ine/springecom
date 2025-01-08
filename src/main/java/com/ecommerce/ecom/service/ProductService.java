@@ -12,7 +12,7 @@ public interface ProductService {
 
     ProductResponse searchProductByKeyword(String keyword);
 
-    ProductDTO updateProduct(ProductDTO product, Long productId);
+    ProductDTO updateProduct(ProductDTO product, Long productId,Long categoryId);
 
     ProductDTO deleteProduct(Long productId);
 }
