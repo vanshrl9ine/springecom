@@ -16,9 +16,9 @@ public class ProductController {
      @Autowired
      private ProductService productService;
      @PostMapping("admin/categories/{categoryId}/product")
-    public ResponseEntity<ProductDTO> addProduct(@RequestBody Product product, @PathVariable Long categoryId) {
-        ProductDTO productDTO=productService.addProduct(categoryId,product);
-        return new ResponseEntity<ProductDTO>(productDTO,HttpStatus.CREATED);
+    public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO, @PathVariable Long categoryId) {
+        ProductDTO savedproductDTO=productService.addProduct(categoryId,productDTO);
+        return new ResponseEntity<ProductDTO>(savedproductDTO,HttpStatus.CREATED);
 
      }
 
@@ -39,8 +39,8 @@ public class ProductController {
         return new ResponseEntity<>(productResponse,HttpStatus.FOUND);
     }
     @PutMapping("/admin/products/{productId}")
-    public ResponseEntity<ProductDTO> updateProduct(@RequestBody Product product, @PathVariable Long productId) {
-         ProductDTO updatedProductDTO=productService.updateProduct(product,productId);
+    public ResponseEntity<ProductDTO> updateProduct(@RequestBody ProductDTO productDTO, @PathVariable Long productId) {
+         ProductDTO updatedProductDTO=productService.updateProduct(productDTO,productId);
          return new ResponseEntity<>(updatedProductDTO,HttpStatus.OK);
 
     }

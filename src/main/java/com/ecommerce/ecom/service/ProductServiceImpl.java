@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -30,8 +29,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO addProduct(Long categoryId, Product product) {
+    public ProductDTO addProduct(Long categoryId, ProductDTO productDTO) {
         Category category=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category","categoryId",categoryId));
+        Product product=modelMapper.map(productDTO, Product.class);
         product.setCategory(category);
         product.setImage("default.png");
         double specialPrice= product.getPrice()*((100 - product.getDiscount())/100);
@@ -76,12 +76,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateProduct(Product product, Long productId) {
+    public ProductDTO updateProduct(ProductDTO productDTO, Long productId) {
         //get existing product from db
         //update
         //save
         Product productFromDb=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product","productId",productId));
-
+        Product product=modelMapper.map(productDTO, Product.class);
         productFromDb.setPrice(product.getPrice());
         productFromDb.setDiscount(product.getDiscount());
         productFromDb.setCategory(product.getCategory());
@@ -89,8 +89,17 @@ public class ProductServiceImpl implements ProductService {
         productFromDb.setQuantity(product.getQuantity());
         productFromDb.setQuantity(product.getQuantity());
         productFromDb.setDescription(product.getDescription());
-        productFromDb.setSpecialPrice(product.getSpecialPrice());
 
+        double specialPrice = product.getPrice() * ((100 - product.getDiscount()) / 100);
+        productFromDb.setSpecialPrice(specialPrice);
+
+        // Only update the category if a new one is explicitly provided
+        if (product.getCategory() != null && product.getCategory().getCategoryId() != null) {
+            Long categoryId = product.getCategory().getCategoryId();
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+            productFromDb.setCategory(category);
+        }
         Product savedProduct=productRepository.save(productFromDb);
         return modelMapper.map(savedProduct, ProductDTO.class);
 
