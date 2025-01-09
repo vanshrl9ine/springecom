@@ -9,15 +9,12 @@ import com.ecommerce.ecom.repositories.CategoryRepository;
 import com.ecommerce.ecom.repositories.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -29,6 +26,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
 
     public ProductServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
@@ -122,27 +125,15 @@ public class ProductServiceImpl implements ProductService {
         //for now we are uploading to file system later we will shiftto cloud
         Product productFromDb =productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product","productId",productId));
 
+       //Path is injected from application.properties
 
-        String path="images/";
-        String filename=uploadImage(path,image);
+        String filename=fileService.uploadImage(path,image);
         productFromDb.setImage(filename);
         Product updatedProduct=productRepository.save(productFromDb);
         return modelMapper.map(updatedProduct, ProductDTO.class);
     }
 
-    private String uploadImage(String path, MultipartFile file) throws IOException {
-        //we need to genrate unique id so that files dont get ovelapped
-        String originalFilename=file.getOriginalFilename();
 
-        String randomId= UUID.randomUUID().toString();
-        String fileName=randomId.concat(originalFilename.substring(originalFilename.lastIndexOf('.')));//file extension is retained eg jpg or png
-        String filePath=path + File.separator + fileName;//hardcodin / will have different behaviours on different OS
 
-        File folder=new File(path);
-        if(!folder.exists()) {
-            folder.mkdir();
-        }
-        Files.copy(file.getInputStream(), Paths.get(filePath));
-        return fileName;
-    }
+
 }
