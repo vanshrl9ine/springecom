@@ -1,5 +1,6 @@
 package com.ecommerce.ecom.service;
 
+import com.ecommerce.ecom.exceptions.APIException;
 import com.ecommerce.ecom.exceptions.ResourceNotFoundException;
 import com.ecommerce.ecom.model.Category;
 import com.ecommerce.ecom.model.Product;
@@ -40,13 +41,31 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO addProduct(Long categoryId, ProductDTO productDTO) {
         Category category=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category","categoryId",categoryId));
-        Product product=modelMapper.map(productDTO, Product.class);
-        product.setCategory(category);
-        product.setImage("default.png");
-        double specialPrice= product.getPrice()*((100 - product.getDiscount())/100);
-        product.setSpecialPrice(specialPrice);
-        Product savedProduct=productRepository.save(product);
-        return modelMapper.map(savedProduct, ProductDTO.class);
+
+        boolean isProductNotPresent=true;
+
+        List<Product> products=category.getProducts();
+
+        for(int i=0;i<products.size();i++){
+            if(products.get(i).getProductName().equals(productDTO.getProductName())){
+                isProductNotPresent=false;
+                break;
+            }
+        }
+
+        if(!isProductNotPresent){
+            throw new APIException("Product already exists");
+        }
+        else{
+            Product product=modelMapper.map(productDTO, Product.class);
+            product.setCategory(category);
+            product.setImage("default.png");
+            double specialPrice= product.getPrice()*((100 - product.getDiscount())/100);
+            product.setSpecialPrice(specialPrice);
+            Product savedProduct=productRepository.save(product);
+            return modelMapper.map(savedProduct, ProductDTO.class);
+        }
+
 
 
     }
